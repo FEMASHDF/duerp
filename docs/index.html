@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DUERP – FEMAS HDF</title>
+<meta name="robots" content="noindex">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2433;--muted:#5b6475;--line:#dde1e8;--brand:#1f4e79;--brand-ink:#fff;--accent:#e8f0f8;--warn:#fce4d6;--warn-ink:#8a3b12;--ok:#e3f4e8;--ok-ink:#1d6b34;--danger:#b42318;--focus:#2f7fd1;--p1:#f8d7d3;--p1-ink:#8f1d12;--p2:#fdebc8;--p2-ink:#7a4b00;--p3:#e3f4e8;--p3-ink:#1d6b34}
+@media (prefers-color-scheme:dark){:root{--bg:#12161d;--card:#1a2029;--ink:#e6e9ef;--muted:#a3abb9;--line:#2c3440;--brand:#4b8fd1;--brand-ink:#0d1117;--accent:#1f2b3a;--warn:#3a2418;--warn-ink:#f2b38f;--ok:#17301f;--ok-ink:#8fd8a4;--danger:#f08b80;--focus:#7db6f0;--p1:#3d1c19;--p1-ink:#f5a49b;--p2:#3a2e14;--p2-ink:#f3cf86;--p3:#17301f;--p3-ink:#8fd8a4}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--brand);color:var(--brand-ink);padding:24px 16px}
+header .in,main{max-width:960px;margin:0 auto}
+header h1{margin:0 0 4px;font-size:1.5rem}
+header p{margin:0;opacity:.9}
+main{padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin:0 0 16px}
+.card h2{margin:0 0 12px;font-size:1.15rem}
+.notice{background:var(--ok);color:var(--ok-ink);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:.95rem}
+.notice.warn{background:var(--warn);color:var(--warn-ink)}
+.notice.info{background:var(--accent);color:var(--ink)}
+label.q{display:block;font-weight:600;margin:14px 0 4px}
+.req{color:var(--danger)}
+.help{color:var(--muted);font-size:.88rem;margin:0 0 6px}
+input[type=text],input[type=date],input[type=number],select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+textarea{min-height:70px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus,summary:focus{outline:2px solid var(--focus);outline-offset:1px}
+.opts{display:grid;gap:6px}
+.opts label{display:flex;gap:8px;align-items:flex-start;font-weight:400;cursor:pointer}
+.opts input{margin-top:4px}
+fieldset{border:0;margin:18px 0 0;padding:0}
+legend{font-weight:700;font-size:1.05rem;color:var(--brand);padding:0;margin-bottom:2px;border-bottom:1px solid var(--line);width:100%;padding-bottom:4px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:6px;font:inherit;cursor:pointer}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);font-weight:600}
+.btn.danger{color:var(--danger)}
+.btn.sm{padding:4px 10px;font-size:.88rem}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.fiche{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;flex-wrap:wrap}
+.fiche .t{font-weight:600}
+.badge{display:inline-block;font-size:.8rem;padding:2px 8px;border-radius:99px;background:var(--accent);margin:2px 2px 0 0}
+.badge.w{background:var(--warn);color:var(--warn-ink)}
+.badge.ok{background:var(--ok);color:var(--ok-ink)}
+.badge.P1{background:var(--p1);color:var(--p1-ink)}
+.badge.P2{background:var(--p2);color:var(--p2-ink)}
+.badge.P3{background:var(--p3);color:var(--p3-ink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px}
+@media (max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+.err{color:var(--danger);font-size:.9rem}
+.small{font-size:.88rem;color:var(--muted)}
+.sticky{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px 0;margin-top:16px;z-index:2}
+details.risk{border:1px solid var(--line);border-radius:8px;margin:8px 0;background:var(--card)}
+details.risk>summary{cursor:pointer;padding:10px 12px;display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;list-style:none}
+details.risk>summary::-webkit-details-marker{display:none}
+details.risk>summary .rl{font-weight:600}
+details.risk>summary .rl::before{content:"▸ ";color:var(--muted)}
+details.risk[open]>summary .rl::before{content:"▾ "}
+details.risk .body{padding:0 12px 12px;border-top:1px solid var(--line)}
+details.risk.non>summary .rl{color:var(--muted);font-weight:400}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:4px}
+.seg label{padding:6px 12px;cursor:pointer;font-weight:400;border-right:1px solid var(--line)}
+.seg label:last-child{border-right:0}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg input:checked+span{font-weight:700;color:var(--brand)}
+.seg label:has(input:checked){background:var(--accent)}
+.crit{font-weight:700}
+.steps{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;padding:0;list-style:none;counter-reset:s}
+.steps li{counter-increment:s;font-size:.85rem;background:rgba(255,255,255,.15);padding:3px 10px;border-radius:99px}
+.steps li::before{content:counter(s) ". "}
+footer{max-width:960px;margin:0 auto;padding:8px 16px 32px;color:var(--muted);font-size:.85rem}
+a{color:var(--brand)}
+.hidden{display:none}
+table.leg{border-collapse:collapse;font-size:.85rem;margin-top:6px}
+table.leg td,table.leg th{border:1px solid var(--line);padding:4px 8px;text-align:center}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <h1>Document unique d'évaluation des risques professionnels (DUERP)</h1>
+  <p>FEMAS HDF · Boîte à outils juridique MSP &amp; CPTS · D'après l'outil d'évaluation des risques de l'Assurance Maladie – Risques professionnels et de l'INRS</p>
+  <ol class="steps"><li>Préparer</li><li>Identifier les risques</li><li>Hiérarchiser</li><li>Plan d'actions</li><li>Éditer le DUERP</li></ol>
+</div></header>
+<main>
+  <div class="notice"><strong>Confidentialité :</strong> vos réponses restent <strong>sur cet ordinateur</strong>.
+    Elles ne sont envoyées ni à FEMAS HDF ni à GitHub. Le DUERP est généré ici même, en fichier Excel.
+    <strong>Ne saisissez aucune donnée de santé concernant un salarié</strong> : on évalue des situations de travail, pas des personnes.</div>
+
+  <section class="card">
+    <h2>1. Reprendre un DUERP existant (facultatif)</h2>
+    <p class="small">Pour la mise à jour annuelle ou après un changement, importez le fichier Excel généré par cet outil : vos réponses seront rechargées et l'historique des versions conservé.</p>
+    <div class="row">
+      <input type="file" id="importFile" accept=".xlsx" class="hidden">
+      <button class="btn" id="btnImport" type="button">📂 Importer mon DUERP Excel</button>
+      <span id="importMsg" class="small" role="status"></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Préparer : votre structure</h2>
+    <div id="structForm"></div>
+    <div id="effNotice" class="notice info hidden" style="margin:14px 0 0"></div>
+    <fieldset>
+      <legend id="orgLegend">Organisation générale de la prévention</legend>
+      <div id="orgForm"></div>
+    </fieldset>
+  </section>
+
+  <section class="card">
+    <h2>3. Identifier et hiérarchiser : vos unités de travail</h2>
+    <p class="small">Une <strong>unité de travail</strong> regroupe les salariés exposés aux mêmes risques (un poste, un métier ou un lieu : accueil, coordination, entretien…).
+      Pour chacune, indiquez les risques présents, les mesures déjà en place et cotez le risque restant.</p>
+    <details class="small" style="margin:0 0 10px"><summary style="cursor:pointer">Comment coter un risque ?</summary>
+      <p>Criticité = <strong>gravité × fréquence d'exposition</strong>, en tenant compte des mesures déjà en place.</p>
+      <table class="leg" aria-label="Grille de priorité">
+        <tr><th>Gravité \ Fréquence</th><th>1 Rare</th><th>2 Occasionnelle</th><th>3 Fréquente</th><th>4 Permanente</th></tr>
+        <tr><th>4 Très grave</th><td class="badge P2">4</td><td class="badge P2">8</td><td class="badge P1">12</td><td class="badge P1">16</td></tr>
+        <tr><th>3 Grave</th><td class="badge P3">3</td><td class="badge P2">6</td><td class="badge P1">9</td><td class="badge P1">12</td></tr>
+        <tr><th>2 Moyenne</th><td class="badge P3">2</td><td class="badge P2">4</td><td class="badge P2">6</td><td class="badge P2">8</td></tr>
+        <tr><th>1 Faible</th><td class="badge P3">1</td><td class="badge P3">2</td><td class="badge P3">3</td><td class="badge P2">4</td></tr>
+      </table>
+      <p><span class="badge P1">P1</span> agir rapidement · <span class="badge P2">P2</span> planifier · <span class="badge P3">P3</span> surveiller</p>
+    </details>
+    <div id="fiches"></div>
+    <div class="row" id="presets"></div>
+  </section>
+
+  <section class="card hidden" id="editor">
+    <h2 id="editorTitle">Unité de travail</h2>
+    <div id="ficheForm"></div>
+    <div class="sticky row">
+      <button class="btn primary" type="button" id="btnSave">✔ Enregistrer l'unité</button>
+      <button class="btn" type="button" id="btnCancel">Annuler</button>
+      <span id="ficheErr" class="err" role="alert"></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4. Éditer le DUERP</h2>
+    <p class="small">Le fichier Excel contient : <em>Synthèse</em> (structure, obligations, historique des versions), <em>Inventaire des risques</em> par unité de travail,
+      <em>Plan d'actions</em>, <em>Annexe – expositions</em> (proportion de salariés exposés) et la <em>grille de cotation</em>.
+      Conservez chaque version (obligation de conservation : 40 ans), transmettez-la à votre service de prévention et de santé au travail
+      et ré-importez-la ici pour la prochaine mise à jour.</p>
+    <div class="row">
+      <button class="btn primary" type="button" id="btnDownload">⬇ Télécharger le DUERP Excel</button>
+      <button class="btn danger" type="button" id="btnClear">🗑 Effacer les données de ce navigateur</button>
+    </div>
+    <p id="dlMsg" class="small" role="status"></p>
+  </section>
+</main>
+<footer>
+  Outil proposé par FEMAS HDF. Sources : ameli.fr Entreprise,
+  <a href="https://www.ameli.fr/artois/entreprise/votre-entreprise/outils-gestion-prevention-risques-professionnels" target="_blank" rel="noopener">Outils de gestion et prévention des risques professionnels</a>
+  · <a href="https://www.ameli.fr/artois/entreprise/sante-travail/prevention/conseils/piloter/declarer-evaluer-duer" target="_blank" rel="noopener">Le DUERP</a>
+  · <a href="https://oiraproject.eu/oira-tools/fr/travail-de-bureau/travail-de-bureau" target="_blank" rel="noopener">Outil OiRA « Travail de bureau et télétravail »</a>
+  · <a href="https://www.inrs.fr/demarche/evaluation-risques-professionnels/ce-qu-il-faut-retenir.html" target="_blank" rel="noopener">INRS – évaluation des risques</a>
+  · <a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000043884445" target="_blank" rel="noopener">Code du travail L.4121-3-1</a>.
+  Brouillon enregistré uniquement dans ce navigateur ; utilisez « Effacer » sur un poste partagé.<br>
+  Outil d'aide à la démarche de prévention : il ne remplace ni l'accompagnement de votre service de prévention et de santé au travail, ni un conseil juridique.
+  Une question ? Jennifer Ramos, référente juridique FEMAS HDF : <a href="mailto:jennifer.ramos@femas-hdf.fr">jennifer.ramos@femas-hdf.fr</a>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script>
+const SCHEMA = /*SCHEMA*/{"meta": {"title": "FEMAS HDF – Document unique d'évaluation des risques professionnels", "version": 1}, "structure": [{"id": "structure", "type": "input", "label": "Structure (nom de la MSP / CPTS, ville)", "placeholder": "Ex. : MSP de … – Ville", "required": true}, {"id": "forme_juridique", "type": "dropdown", "label": "Type de structure employeuse", "options": ["Maison de santé pluriprofessionnelle (SISA)", "Maison de santé pluriprofessionnelle (association)", "Communauté professionnelle territoriale de santé (CPTS)", "Cabinet de groupe (SCM / SEL / SCP)", "Autre (préciser en commentaire)"], "required": true}, {"id": "employeur", "type": "input", "label": "Employeur responsable du DUERP (nom, qualité)", "description": "L'employeur reste responsable du document unique, même s'il en délègue la réalisation pratique (R.4121-1 CT).", "placeholder": "Ex. : Dr X, gérant(e) de la SISA – ou Mme Y, présidente de l'association", "required": true}, {"id": "effectif", "type": "number", "label": "Nombre total de salariés", "description": "Le DUERP est obligatoire dès le 1er salarié. À partir de 11 salariés : mise à jour au moins annuelle. À partir de 50 : programme annuel de prévention (PAPRIPACT).", "required": true}, {"id": "adresse", "type": "input", "label": "Adresse du ou des sites", "required": false}, {"id": "spst", "type": "input", "label": "Service de prévention et de santé au travail (SPST) / médecin du travail", "placeholder": "Ex. : Pôle Santé Travail – Dr Z, contact…", "required": true}, {"id": "redacteur", "type": "input", "label": "Personne ayant conduit l'évaluation (nom, fonction)", "required": true}, {"id": "participants", "type": "textarea", "label": "Personnes associées à l'évaluation", "description": "Il est recommandé d'établir le DUERP avec les salariés (ou leurs représentants / CSE), le médecin du travail ou un organisme ressource.", "placeholder": "Ex. : secrétaires (2), coordinatrice, membre du CSE, médecin du travail…", "required": false}, {"id": "date_maj", "type": "date", "label": "Date de l'évaluation / de la mise à jour", "required": true}, {"id": "motif_maj", "type": "dropdown", "label": "Motif de cette version", "options": ["Première rédaction", "Mise à jour annuelle", "Aménagement important (locaux, organisation, nouveau poste…)", "Information nouvelle sur un risque (accident du travail, incident…)", "Autre"], "required": true}], "organisation": {"id": "organisation", "label": "Organisation générale de la prévention", "gap": true, "options": ["La structure adhère à un service de prévention et de santé au travail (SPST)", "Les salariés ont bénéficié de leur visite d'information et de prévention (VIP)", "Le DUERP est tenu à la disposition des salariés, du médecin du travail et de l'inspection du travail", "Les modalités d'accès au DUERP sont affichées", "Le DUERP est transmis au SPST à chaque mise à jour (L.4121-3-1 CT)", "Les versions successives du DUERP sont conservées (40 ans)", "Les salariés (ou le CSE) sont associés à l'évaluation des risques", "Les nouveaux salariés reçoivent une information sécurité à l'embauche", "Une trousse de premiers secours est disponible et vérifiée", "Les consignes de sécurité et numéros d'urgence sont affichés", "Les accidents du travail et incidents sont analysés et pris en compte dans le DUERP"]}, "cotation": {"gravite": [{"v": 1, "label": "1 – Faible : pas d'arrêt de travail, gêne passagère"}, {"v": 2, "label": "2 – Moyenne : arrêt de travail court"}, {"v": 3, "label": "3 – Grave : arrêt long, séquelles possibles"}, {"v": 4, "label": "4 – Très grave : incapacité permanente, décès"}], "frequence": [{"v": 1, "label": "1 – Rare : moins d'une fois par mois"}, {"v": 2, "label": "2 – Occasionnelle : quelques fois par mois"}, {"v": 3, "label": "3 – Fréquente : chaque semaine"}, {"v": 4, "label": "4 – Permanente : tous les jours"}], "priorites": [{"min": 9, "code": "P1", "label": "Priorité 1 – agir rapidement"}, {"min": 4, "code": "P2", "label": "Priorité 2 – planifier"}, {"min": 1, "code": "P3", "label": "Priorité 3 – surveiller"}]}, "risques": [{"id": "rps", "label": "Risques psychosociaux (charge de travail, interruptions, tensions)", "exemples": "Flux d'appels et de patients, interruptions permanentes, objectifs flous, conflits internes, exposition à la détresse des patients, horaires étendus.", "mesures": ["Fiches de poste et missions clairement définies", "Entretiens individuels réguliers (charge de travail, difficultés)", "Organisation des pauses et des remplacements", "Réunions d'équipe incluant l'organisation du travail", "Procédure de gestion des désaccords / conflits", "Droit à la déconnexion formalisé", "Possibilité d'orientation vers le médecin du travail / un soutien psychologique"]}, {"id": "violence", "label": "Agressions et incivilités du public", "exemples": "Patients mécontents (attente, refus de RDV, ordonnances), personnes sous l'emprise de substances, menaces téléphoniques, agressions verbales ou physiques.", "mesures": ["Procédure de gestion des situations de violence connue de tous (kit violences FEMAS HDF)", "Formation des salariés à la gestion des conflits / de l'agressivité", "Aménagement de l'accueil (banque d'accueil, issue de dégagement, visibilité)", "Moyen d'alerte (bouton, téléphone, code d'appel à l'aide)", "Affichage des règles de vie et de respect mutuel", "Recensement des incidents, soutien du salarié et dépôt de plainte facilité", "Pas de salarié seul à l'ouverture / à la fermeture"]}, {"id": "ecran", "label": "Travail sur écran et postures (troubles musculo-squelettiques)", "exemples": "Saisie prolongée, téléphone coincé entre épaule et oreille, écran mal positionné, siège non réglable, gestes répétitifs.", "mesures": ["Écran réglé à hauteur des yeux, face à l'utilisateur", "Siège ergonomique réglable", "Casque téléphonique", "Pauses régulières / alternance des tâches", "Éclairage adapté, sans reflet sur l'écran", "Repose-pieds, support document à disposition si besoin", "Étude de poste possible avec le SPST"]}, {"id": "chute_pp", "label": "Chutes de plain-pied (glissades, trébuchements)", "exemples": "Sol mouillé (entretien, pluie), câbles au sol, cartons dans les passages, marches non signalées, éclairage insuffisant.", "mesures": ["Sols antidérapants et en bon état", "Passages dégagés, rangement régulier", "Câbles regroupés sous goulottes", "Éclairage suffisant des circulations et escaliers", "Signalisation du sol mouillé pendant l'entretien", "Tapis d'entrée absorbant"]}, {"id": "chute_h", "label": "Chutes de hauteur (escaliers, escabeaux)", "exemples": "Accès aux archives en hauteur, montée sur une chaise, escaliers sans rampe.", "mesures": ["Escabeau stable et conforme à disposition", "Interdiction de monter sur une chaise ou un meuble", "Rampe ou main courante dans les escaliers", "Objets lourds et archives courantes rangés à hauteur accessible"]}, {"id": "manutention", "label": "Manutention manuelle et port de charges", "exemples": "Cartons de fournitures, ramettes, archives, matériel médical ; aide à la mobilisation de patients.", "mesures": ["Chariot / diable à disposition", "Livraisons déposées au plus près du lieu de stockage", "Stockage des charges lourdes à hauteur de taille", "Formation gestes et postures / PRAP", "Aides techniques pour la mobilisation des patients (si soins)"]}, {"id": "biologique", "label": "Risque biologique (infections, accident d'exposition au sang)", "exemples": "Contact avec des patients contagieux en salle d'attente ou en soins, piqûres, manipulation de prélèvements ou de DASRI, épidémies saisonnières.", "mesures": ["Vaccinations à jour selon le poste (hépatite B obligatoire pour les soignants exposés)", "Conduite à tenir en cas d'AES affichée et connue", "Collecteurs DASRI adaptés et filière d'élimination", "Équipements de protection disponibles (gants, masques)", "Solution hydroalcoolique et hygiène des mains", "Aération régulière des locaux / salle d'attente", "Protocole de nettoyage et désinfection des surfaces"]}, {"id": "chimique", "label": "Produits chimiques (entretien, désinfection)", "exemples": "Détergents, désinfectants, produits de stérilisation, mélanges de produits, projections.", "mesures": ["Fiches de données de sécurité (FDS) disponibles", "Produits dans leur emballage d'origine, étiquetés", "Gants et lunettes de protection à disposition", "Stockage dans un local ventilé et fermé", "Substitution par des produits moins dangereux", "Consigne : ne jamais mélanger les produits"]}, {"id": "routier", "label": "Risque routier (déplacements professionnels, visites à domicile)", "exemples": "Visites à domicile, réunions extérieures, trajets entre sites, conduite par mauvais temps, usage du téléphone au volant.", "mesures": ["Véhicules entretenus (si véhicule de la structure)", "Planification des déplacements évitant l'urgence", "Interdiction de téléphoner en conduisant", "Recours à la visio quand c'est possible", "Consignes en cas d'intempéries"]}, {"id": "electrique", "label": "Risque électrique", "exemples": "Multiprises en cascade, câbles abîmés, matériel défectueux, intervention non qualifiée.", "mesures": ["Installation électrique vérifiée par un professionnel", "Pas de multiprises branchées en cascade", "Signalement et retrait du matériel défectueux", "Interventions réservées à une personne qualifiée"]}, {"id": "incendie", "label": "Incendie et évacuation", "exemples": "Départ de feu (appareils électriques, stockage papier), évacuation du public et des salariés.", "mesures": ["Extincteurs adaptés et vérifiés chaque année", "Plan d'évacuation et consignes affichés", "Issues de secours dégagées et signalées", "Salariés formés à la manipulation des extincteurs", "Exercice d'évacuation réalisé", "Détection incendie / alarme"]}, {"id": "thermique", "label": "Ambiances thermiques (chaleur, froid)", "exemples": "Fortes chaleurs dans les bureaux ou la salle d'attente, locaux mal chauffés, épisodes de canicule. Risque à inventorier obligatoirement (R.4121-1 CT).", "mesures": ["Ventilation / climatisation adaptée", "Stores ou protections solaires", "Eau fraîche à disposition", "Plan canicule (horaires aménagés, pauses supplémentaires)", "Chauffage suffisant en hiver"]}, {"id": "ambiance", "label": "Bruit, éclairage et aménagement des locaux", "exemples": "Accueil ouvert sur la salle d'attente, sonneries permanentes, open space, manque de lumière naturelle, espace de travail exigu.", "mesures": ["Séparation de l'accueil et de la salle d'attente", "Réglage du volume des sonneries / téléphonie adaptée", "Lumière naturelle et éclairage d'appoint", "Espace de travail suffisant et rangé", "Local de pause distinct"]}, {"id": "isole", "label": "Travail isolé", "exemples": "Salarié seul en début ou fin de journée, seul sur un site secondaire, en visite à domicile.", "mesures": ["Procédure d'alerte en cas de problème", "Téléphone ou dispositif d'alerte à disposition", "Horaires évitant le travail seul quand c'est possible", "Information d'un tiers sur la présence et les horaires"]}, {"id": "teletravail", "label": "Télétravail (isolement, hyperconnexion, ergonomie au domicile)", "exemples": "Perte de lien avec l'équipe, difficulté à déconnecter, poste de travail improvisé au domicile.", "mesures": ["Charte ou accord de télétravail", "Équipement fourni (ordinateur, écran, casque)", "Plages de joignabilité et droit à la déconnexion définis", "Temps collectifs réguliers sur site", "Conseils d'aménagement du poste au domicile"]}, {"id": "autre", "label": "Autre risque (à préciser)", "exemples": "Tout autre risque identifié dans l'unité de travail (rayonnements, coupures, animaux lors des visites…).", "mesures": []}], "unites": [{"nom": "Accueil / secrétariat", "description": "Accueil physique et téléphonique des patients, gestion des rendez-vous, encaissements, tâches administratives.", "risques": ["rps", "violence", "ecran", "chute_pp", "chute_h", "biologique", "incendie", "thermique", "ambiance", "isole", "electrique"]}, {"nom": "Coordination / gestion administrative", "description": "Coordination de l'équipe pluriprofessionnelle, gestion administrative et financière, réunions, projets de santé publique.", "risques": ["rps", "ecran", "routier", "chute_pp", "incendie", "thermique", "teletravail", "electrique"]}, {"nom": "Soins et assistance médicale (salariés)", "description": "Infirmier(e) salarié(e), assistant(e) médical(e), IPA salarié(e) : soins, préparation des consultations, prélèvements.", "risques": ["biologique", "chimique", "manutention", "rps", "violence", "chute_pp", "routier", "isole", "thermique"]}, {"nom": "Entretien des locaux", "description": "Nettoyage et désinfection des locaux et des surfaces, gestion des déchets.", "risques": ["chimique", "biologique", "chute_pp", "chute_h", "manutention", "isole", "electrique"]}, {"nom": "Télétravail", "description": "Activités réalisées au domicile du salarié.", "risques": ["teletravail", "ecran", "rps", "electrique"]}, {"nom": "Déplacements / visites à domicile", "description": "Trajets professionnels, réunions extérieures, interventions au domicile des patients.", "risques": ["routier", "violence", "isole", "biologique", "thermique"]}, {"nom": "Autre unité de travail", "description": "", "risques": []}]}/*FIN_SCHEMA*/;
+const USAGE = /*USAGE*/null/*FIN_USAGE*/;
+const STORE_KEY = "femas-duerp-v1";
+
+const RISKS = SCHEMA.risques;
+const RISK = Object.fromEntries(RISKS.map(r => [r.id, r]));
+const STRUCT = SCHEMA.structure;
+const STRUCT_IDS = STRUCT.map(f => f.id);
+const ORG = SCHEMA.organisation;
+
+let state = {structure:{}, organisation:[], unites:[], historique:[]};
+let editing = null;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const today = () => new Date().toLocaleDateString("fr-FR");
+const isoToFr = v => v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v.split("-").reverse().join("/") : v;
+const frToIso = v => v && /^\d{2}\/\d{2}\/\d{4}$/.test(v) ? v.split("/").reverse().join("-") : "";
+
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+function load(){ try{ const s = JSON.parse(localStorage.getItem(STORE_KEY)||"null"); if(s && s.unites) state = Object.assign({structure:{}, organisation:[], unites:[], historique:[]}, s); }catch(e){} }
+
+// ---------- Cotation ----------
+function crit(ev){ const g = +ev.gravite||0, f = +ev.frequence||0; return g && f ? g*f : 0; }
+function prio(c){ if (!c) return ""; for (const p of SCHEMA.cotation.priorites) if (c >= p.min) return p.code; return ""; }
+const prioLabel = code => (SCHEMA.cotation.priorites.find(p => p.code === code)||{}).label || "";
+const effectif = () => parseInt(state.structure.effectif, 10) || 0;
+
+// ---------- Champs génériques ----------
+function fieldHTML(f, val, prefix){
+  const id = prefix + f.id;
+  const req = f.required ? ' <span class="req" aria-hidden="true">*</span>' : "";
+  const help = f.description ? `<p class="help">${esc(f.description)}</p>` : "";
+  let input;
+  if (f.type === "dropdown"){
+    input = `<select id="${id}" data-id="${f.id}"><option value="">Choisir…</option>` +
+      f.options.map(o=>`<option ${o===val?"selected":""}>${esc(o)}</option>`).join("") + `</select>`;
+  } else if (f.type === "textarea"){
+    input = `<textarea id="${id}" data-id="${f.id}" placeholder="${esc(f.placeholder||"")}">${esc(val||"")}</textarea>`;
+  } else if (f.type === "date"){
+    input = `<input type="date" id="${id}" data-id="${f.id}" value="${frToIso(val)}">`;
+  } else if (f.type === "number"){
+    input = `<input type="number" min="0" step="1" id="${id}" data-id="${f.id}" value="${esc(val||"")}">`;
+  } else {
+    input = `<input type="text" id="${id}" data-id="${f.id}" value="${esc(val||"")}" placeholder="${esc(f.placeholder||"")}">`;
+  }
+  return `<label class="q" for="${id}">${esc(f.label)}${req}</label>${help}${input}`;
+}
+function readStruct(){
+  const out = {};
+  for (const f of STRUCT){
+    const el = $("#structForm").querySelector(`[data-id="${f.id}"]`);
+    let v = el ? el.value.trim() : "";
+    if (f.type === "date") v = isoToFr(v);
+    out[f.id] = v;
+  }
+  return out;
+}
+const structMissing = s => STRUCT.filter(f => f.required && !s[f.id]).map(f => f.label);
+
+function renderStruct(){
+  $("#structForm").innerHTML = `<div class="grid2">` + STRUCT.map(f => `<div ${f.type==="textarea"?'style="grid-column:1/-1"':""}>${fieldHTML(f, state.structure[f.id], "s_")}</div>`).join("") + `</div>`;
+  const vals = new Set(state.organisation||[]);
+  $("#orgForm").innerHTML = `<p class="help">Toute case non cochée sera inscrite au plan d'actions.</p><div class="opts">` +
+    ORG.options.map(o => `<label><input type="checkbox" name="org" value="${esc(o)}" ${vals.has(o)?"checked":""}> <span>${esc(o)}</span></label>`).join("") + `</div>`;
+}
+function effNotice(){
+  const n = effectif(), box = $("#effNotice");
+  if (!n){ box.classList.add("hidden"); return; }
+  let t = `<strong>${n} salarié(s) :</strong> le DUERP est obligatoire et doit être mis à jour lors de tout aménagement important modifiant les conditions de travail et lorsqu'une information nouvelle sur un risque est recueillie.`;
+  if (n >= 11) t += ` À partir de 11 salariés, il doit être <strong>mis à jour au moins chaque année</strong>.`;
+  t += n >= 50
+    ? ` À partir de 50 salariés, l'évaluation débouche sur un <strong>programme annuel de prévention des risques professionnels et d'amélioration des conditions de travail (PAPRIPACT)</strong>, présenté au CSE.`
+    : ` En dessous de 50 salariés, l'évaluation débouche sur une <strong>liste d'actions de prévention et de protection</strong>, consignée dans le DUERP.`;
+  box.innerHTML = t; box.classList.remove("hidden");
+}
+["input","change"].forEach(ev => {
+  $("#structForm").addEventListener(ev, () => { state.structure = readStruct(); save(); effNotice(); });
+  $("#orgForm").addEventListener(ev, () => { state.organisation = [...$("#orgForm").querySelectorAll("input:checked")].map(i=>i.value); save(); });
+});
+
+// ---------- Unités de travail ----------
+function unitStats(u){
+  const s = {P1:0,P2:0,P3:0,oui:0,non:0,aeval:0,incomplets:0};
+  for (const r of RISKS){
+    const ev = (u.risques||{})[r.id] || {};
+    if (ev.concerne === "Oui"){ s.oui++; const p = prio(crit(ev)); if (p) s[p]++; else s.incomplets++; }
+    else if (ev.concerne === "Non") s.non++;
+    else s.aeval++;
+  }
+  return s;
+}
+function unitMissing(u){
+  const m = [];
+  if (!u.nom) m.push("Nom de l'unité");
+  if (!(+u.nb_salaries > 0)) m.push("Nombre de salariés");
+  for (const r of RISKS){ const ev = (u.risques||{})[r.id]||{}; if (ev.concerne === "Oui" && !crit(ev)) m.push("Cotation : " + r.label); }
+  return m;
+}
+
+function renderFiches(){
+  const box = $("#fiches");
+  if (!state.unites.length){ box.innerHTML = `<p class="small">Aucune unité de travail pour l'instant. Commencez avec un modèle ci-dessous.</p>`; return; }
+  box.innerHTML = state.unites.map((u,i)=>{
+    const s = unitStats(u), miss = unitMissing(u).length;
+    return `<div class="fiche"><div><div class="t">${esc(u.nom || "(sans nom)")} <span class="small">· ${esc(u.nb_salaries||"?")} salarié(s)</span></div>
+      <span class="badge ${miss?"w":"ok"}">${miss? miss+" élément(s) à compléter" : "Complète"}</span>
+      ${s.P1?`<span class="badge P1">${s.P1} P1</span>`:""}${s.P2?`<span class="badge P2">${s.P2} P2</span>`:""}${s.P3?`<span class="badge P3">${s.P3} P3</span>`:""}
+      <span class="badge">${s.aeval} risque(s) non évalué(s)</span></div>
+      <div class="row"><button class="btn" data-act="edit" data-i="${i}" type="button">Modifier</button>
+      <button class="btn" data-act="dup" data-i="${i}" type="button">Dupliquer</button>
+      <button class="btn danger" data-act="del" data-i="${i}" type="button">Supprimer</button></div></div>`;
+  }).join("");
+}
+function renderPresets(){
+  $("#presets").innerHTML = `<span class="small">Ajouter :</span>` +
+    SCHEMA.unites.map((p,i)=>`<button class="btn" type="button" data-preset="${i}">＋ ${esc(p.nom)}</button>`).join("");
+}
+
+function riskHTML(r, ev){
+  const c = crit(ev), p = prio(c);
+  const id = "r_" + r.id;
+  const vals = new Set(ev.mesures || []);
+  const seg = ["Oui","Non",""].map(v => `<label><input type="radio" name="${id}_c" value="${v}" ${ (ev.concerne||"")===v ? "checked":""}><span>${v==="Oui"?"Oui, concerné":v==="Non"?"Non concerné":"À évaluer"}</span></label>`).join("");
+  const sel = (name, list, v) => `<select data-k="${name}"><option value="">Choisir…</option>` + list.map(o => `<option value="${o.v}" ${String(o.v)===String(v)?"selected":""}>${esc(o.label)}</option>`).join("") + `</select>`;
+  return `<details class="risk ${ev.concerne==="Non"?"non":""}" data-risk="${r.id}" ${ev.concerne==="Oui"?"open":""}>
+    <summary><span class="rl">${esc(r.label)}</span><span class="sum">${summaryBadge(ev)}</span></summary>
+    <div class="body">
+      <p class="help" style="margin-top:8px">Exemples : ${esc(r.exemples)}</p>
+      <div class="seg" role="radiogroup" aria-label="Ce risque concerne-t-il l'unité ?">${seg}</div>
+      <div class="rbody ${ev.concerne==="Oui"?"":"hidden"}">
+        <label class="q">Situations dangereuses observées dans l'unité</label>
+        <textarea data-k="situations" placeholder="Décrivez concrètement les situations (où, quand, comment).">${esc(ev.situations||"")}</textarea>
+        <label class="q">Nombre de salariés exposés</label>
+        <input type="number" min="0" step="1" data-k="exposes" value="${esc(ev.exposes||"")}" style="max-width:160px">
+        ${r.mesures.length ? `<label class="q">Mesures de prévention déjà en place</label><p class="help">Les mesures non cochées seront proposées au plan d'actions.</p>
+        <div class="opts">${r.mesures.map(m => `<label><input type="checkbox" data-k="mesures" value="${esc(m)}" ${vals.has(m)?"checked":""}> <span>${esc(m)}</span></label>`).join("")}</div>` : ""}
+        <label class="q">Autres mesures en place</label>
+        <textarea data-k="mesures_autres">${esc(ev.mesures_autres||"")}</textarea>
+        <div class="grid2">
+          <div><label class="q">Gravité <span class="req">*</span></label>${sel("gravite", SCHEMA.cotation.gravite, ev.gravite)}</div>
+          <div><label class="q">Fréquence d'exposition <span class="req">*</span></label>${sel("frequence", SCHEMA.cotation.frequence, ev.frequence)}</div>
+        </div>
+        <p class="help" style="margin-top:6px">Cotez le risque <strong>restant</strong>, compte tenu des mesures déjà en place.</p>
+        <label class="q">Actions de prévention prévues (une par ligne)</label>
+        <textarea data-k="actions" placeholder="Ex. : acheter un siège ergonomique pour le poste 2">${esc(ev.actions||"")}</textarea>
+        <div class="grid2">
+          <div><label class="q">Responsable</label><input type="text" data-k="responsable" value="${esc(ev.responsable||"")}"></div>
+          <div><label class="q">Échéance</label><input type="date" data-k="echeance" value="${frToIso(ev.echeance)}"></div>
+        </div>
+      </div>
+    </div></details>`;
+}
+function summaryBadge(ev){
+  if (ev.concerne === "Non") return `<span class="badge">Non concerné</span>`;
+  if (ev.concerne !== "Oui") return `<span class="badge">À évaluer</span>`;
+  const c = crit(ev), p = prio(c);
+  return p ? `<span class="badge ${p}">${p} · criticité ${c}</span>` : `<span class="badge w">À coter</span>`;
+}
+
+function readRisk(d){
+  const ev = {concerne: (d.querySelector(`input[type=radio]:checked`)||{}).value || ""};
+  ev.mesures = [...d.querySelectorAll(`input[data-k="mesures"]:checked`)].map(i=>i.value);
+  for (const el of d.querySelectorAll(`[data-k]:not([data-k="mesures"])`)){
+    let v = el.value.trim();
+    if (el.type === "date") v = isoToFr(v);
+    ev[el.dataset.k] = v;
+  }
+  return ev;
+}
+
+function openEditor(idx, u){
+  editing = idx;
+  const pre = new Set(u._preselect || []);
+  // les risques présélectionnés ou déjà évalués d'abord
+  const order = [...RISKS].sort((a,b) => {
+    const ra = ((u.risques||{})[a.id]||{}).concerne === "Oui" || pre.has(a.id), rb = ((u.risques||{})[b.id]||{}).concerne === "Oui" || pre.has(b.id);
+    return rb - ra;
+  });
+  $("#ficheForm").innerHTML = `
+    <fieldset><legend>L'unité de travail</legend>
+      <div class="grid2">
+        <div><label class="q" for="u_nom">Nom de l'unité de travail <span class="req">*</span></label><input type="text" id="u_nom" value="${esc(u.nom||"")}" placeholder="Ex. : Accueil / secrétariat"></div>
+        <div><label class="q" for="u_nb">Nombre de salariés dans l'unité <span class="req">*</span></label><input type="number" min="0" step="1" id="u_nb" value="${esc(u.nb_salaries||"")}"></div>
+      </div>
+      <label class="q" for="u_desc">Activités et postes concernés</label>
+      <textarea id="u_desc">${esc(u.description||"")}</textarea>
+    </fieldset>
+    <fieldset><legend>Risques de l'unité</legend>
+      <p class="help">Les risques les plus fréquents pour ce type d'unité sont déjà marqués « concerné » : vérifiez, complétez, puis passez en revue les autres.</p>
+      <div class="row" style="margin:6px 0"><button class="btn sm" type="button" id="btnOpenAll">Tout déplier</button><button class="btn sm" type="button" id="btnCloseAll">Tout replier</button></div>
+      <div id="riskList">${order.map(r => riskHTML(r, (u.risques||{})[r.id] || {})).join("")}</div>
+    </fieldset>`;
+  $("#editorTitle").textContent = idx === -1 ? "Nouvelle unité de travail" : "Modifier l'unité de travail";
+  $("#ficheErr").textContent = "";
+  $("#editor").classList.remove("hidden");
+  $("#editor").scrollIntoView({behavior:"smooth"});
+}
+function readEditor(){
+  const u = {nom: $("#u_nom").value.trim(), nb_salaries: $("#u_nb").value.trim(), description: $("#u_desc").value.trim(), risques:{}};
+  for (const d of document.querySelectorAll("#riskList details.risk")) u.risques[d.dataset.risk] = readRisk(d);
+  return u;
+}
+function closeEditor(){ editing = null; $("#editor").classList.add("hidden"); }
+
+$("#ficheForm").addEventListener("change", e => {
+  const d = e.target.closest("details.risk"); if (!d) return;
+  const ev = readRisk(d);
+  d.querySelector(".rbody").classList.toggle("hidden", ev.concerne !== "Oui");
+  d.classList.toggle("non", ev.concerne === "Non");
+  d.querySelector(".sum").innerHTML = summaryBadge(ev);
+});
+
+// ---------- Plan d'actions ----------
+function buildActions(){
+  const rows = [];
+  for (const o of ORG.options) if (!(state.organisation||[]).includes(o))
+    rows.push({unite:"Toute la structure", risque:"Organisation de la prévention", prio:"P2", action:"Mettre en place : " + o, origine:"Proposée par l'outil – à arbitrer", resp:"", ech:""});
+  const thermiqueVu = state.unites.some(u => ((u.risques||{}).thermique||{}).concerne);
+  if (state.unites.length && !thermiqueVu)
+    rows.push({unite:"Toute la structure", risque:RISK.thermique.label, prio:"P2", action:"Évaluer le risque lié aux ambiances thermiques (inventaire obligatoire – R.4121-1 CT)", origine:"Proposée par l'outil – à arbitrer", resp:"", ech:""});
+  state.unites.forEach(u => {
+    for (const r of RISKS){
+      const ev = (u.risques||{})[r.id] || {};
+      if (ev.concerne !== "Oui") continue;
+      const p = prio(crit(ev)) || "À coter";
+      (ev.actions||"").split(/\n+/).map(s=>s.trim()).filter(Boolean).forEach(a =>
+        rows.push({unite:u.nom, risque:r.label, prio:p, action:a, origine:"Prévue par l'équipe", resp:ev.responsable||"", ech:ev.echeance||""}));
+      if (p !== "P3") for (const m of r.mesures) if (!(ev.mesures||[]).includes(m))
+        rows.push({unite:u.nom, risque:r.label, prio:p, action:"Mesure à envisager : " + m, origine:"Proposée par l'outil – à arbitrer", resp:"", ech:""});
+    }
+  });
+  const rank = {P1:0, P2:1, P3:2};
+  return rows.sort((a,b) => (rank[a.prio] ?? 3) - (rank[b.prio] ?? 3) || (a.origine > b.origine ? -1 : a.origine < b.origine ? 1 : 0));
+}
+
+// ---------- Export Excel ----------
+async function buildWorkbook(){
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "FEMAS HDF – DUERP"; wb.created = new Date();
+  const head = {type:"pattern", pattern:"solid", fgColor:{argb:"FF1F4E79"}};
+  const fills = {P1:"FFF8D7D3", P2:"FFFDEBC8", P3:"FFE3F4E8"};
+  const fill = c => ({type:"pattern", pattern:"solid", fgColor:{argb:c}});
+  const bd = {style:"thin",color:{argb:"FFBFBFBF"}};
+  const border = {top:bd,left:bd,bottom:bd,right:bd};
+  const s = state.structure, n = effectif();
+  const list = v => Array.isArray(v) ? v.map(x=>"• "+x).join("\n") : (v||"");
+
+  function sheet(name, title, headers, rows, widths, opts={}){
+    const ws = wb.addWorksheet(name, {views:[{state:"frozen", ySplit:4}], pageSetup:{orientation:"landscape", fitToPage:true, fitToWidth:1, fitToHeight:0, paperSize:9}});
+    ws.getCell("A1").value = title; ws.getCell("A1").font = {bold:true, size:14, color:{argb:"FF1F4E79"}};
+    ws.getCell("A2").value = `${s.structure||""} – Document unique d'évaluation des risques professionnels – version du ${s.date_maj||today()}`;
+    ws.getCell("A2").font = {italic:true, color:{argb:"FF595959"}};
+    const h = ws.getRow(4); h.values = headers;
+    h.eachCell(c => { c.fill = head; c.font = {bold:true, color:{argb:"FFFFFFFF"}}; c.border = border; c.alignment = {wrapText:true, vertical:"middle"}; });
+    rows.forEach(r => { const row = ws.addRow(r); row.eachCell({includeEmpty:true}, c => { c.border = border; c.alignment = {wrapText:true, vertical:"top"}; }); });
+    widths.forEach((w,i) => ws.getColumn(i+1).width = w);
+    if (rows.length) ws.autoFilter = {from:{row:4,column:1}, to:{row:4+rows.length, column:headers.length}};
+    if (opts.prioCol) rows.forEach((r,i) => { const p = r[opts.prioCol-1]; if (fills[p]) ws.getRow(5+i).getCell(opts.prioCol).fill = fill(fills[p]); });
+    ws.headerFooter.oddFooter = "&L" + (s.structure||"") + " – DUERP&RPage &P / &N";
+    return ws;
+  }
+
+  // 1. Synthèse
+  const synth = sheet("Synthèse", "DUERP – Synthèse",
+    ["N°","Unité de travail","Salariés","Risques identifiés","P1","P2","P3","Non évalués"],
+    state.unites.map((u,i)=>{ const st = unitStats(u); return [i+1, u.nom||"", +u.nb_salaries||"", st.oui, st.P1, st.P2, st.P3, st.aeval]; }),
+    [6,40,10,12,8,8,8,12]);
+  let r0 = 6 + state.unites.length;
+  const kv = (k, v) => { synth.getCell(r0,1).value = k; synth.getCell(r0,1).font = {bold:true}; synth.mergeCells(r0,2,r0,8); synth.getCell(r0,2).value = v||""; synth.getCell(r0,2).alignment = {wrapText:true, vertical:"top"}; r0++; };
+  synth.getCell(r0,1).value = "La structure"; synth.getCell(r0,1).font = {bold:true, size:12, color:{argb:"FF1F4E79"}}; r0++;
+  STRUCT.forEach(f => kv(f.label, s[f.id]));
+  r0++;
+  synth.getCell(r0,1).value = "Rappels réglementaires"; synth.getCell(r0,1).font = {bold:true, size:12, color:{argb:"FF1F4E79"}}; r0++;
+  [
+    ["Obligation", "L'employeur évalue les risques et transcrit les résultats dans le DUERP (L.4121-3 et R.4121-1 CT), dès le 1er salarié."],
+    ["Contenu", "Inventaire des risques identifiés dans chaque unité de travail, y compris ceux liés à l'exposition à la chaleur et au froid ; en annexe, les données collectives utiles à l'évaluation des expositions et la proportion de salariés exposés."],
+    ["Mise à jour", (n >= 11 ? "Au moins chaque année (11 salariés et plus), et " : "") + "lors de toute décision d'aménagement important modifiant les conditions de travail, et lorsqu'une information supplémentaire sur un risque est recueillie (R.4121-2 CT)."],
+    ["Débouché", n >= 50 ? "Programme annuel de prévention des risques professionnels et d'amélioration des conditions de travail (PAPRIPACT), présenté au CSE." : "Liste des actions de prévention et de protection des salariés, consignée dans le DUERP (feuille « Plan d'actions »)."],
+    ["Diffusion", "Tenu à la disposition des salariés et anciens salariés, du médecin du travail, de l'inspection du travail et des agents des services de prévention de la sécurité sociale ; transmis au SPST à chaque mise à jour (L.4121-3-1 CT)."],
+    ["Conservation", "Versions successives conservées pendant au moins 40 ans à compter de leur élaboration (L.4121-3-1 CT)."],
+    ["Sanction", "L'absence de DUERP ou de mise à jour est punie de l'amende prévue pour les contraventions de 5e classe (R.4741-1 CT)."]
+  ].forEach(([k,v]) => kv(k, v));
+  r0++;
+  synth.getCell(r0,1).value = "Organisation générale de la prévention"; synth.getCell(r0,1).font = {bold:true, size:12, color:{argb:"FF1F4E79"}}; r0++;
+  ORG.options.forEach(o => kv((state.organisation||[]).includes(o) ? "✔ Oui" : "✘ À mettre en place", o));
+  r0++;
+  synth.getCell(r0,1).value = "Historique des versions"; synth.getCell(r0,1).font = {bold:true, size:12, color:{argb:"FF1F4E79"}}; r0++;
+  ["Date","Motif","Réalisée par"].forEach((t,i) => { const c = synth.getCell(r0, i===0?1:(i===1?2:6)); c.value = t; c.font = {bold:true, color:{argb:"FFFFFFFF"}}; c.fill = head; });
+  synth.mergeCells(r0,2,r0,5); synth.mergeCells(r0,6,r0,8); r0++;
+  (state.historique||[]).forEach(h => { synth.getCell(r0,1).value = h.date; synth.mergeCells(r0,2,r0,5); synth.getCell(r0,2).value = h.motif; synth.mergeCells(r0,6,r0,8); synth.getCell(r0,6).value = h.redacteur; r0++; });
+
+  // 2. Inventaire
+  const inv = [];
+  state.unites.forEach(u => {
+    const items = RISKS.map(r => [r, (u.risques||{})[r.id]||{}]).filter(([r,ev]) => ev.concerne === "Oui").sort((a,b) => crit(b[1]) - crit(a[1]));
+    items.forEach(([r,ev]) => {
+      const c = crit(ev);
+      inv.push([u.nom||"", +u.nb_salaries||"", r.label, ev.situations||"", +ev.exposes||"", list((ev.mesures||[]).concat(ev.mesures_autres ? [ev.mesures_autres] : [])), +ev.gravite||"", +ev.frequence||"", c||"", prio(c) || "À coter"]);
+    });
+  });
+  sheet("Inventaire des risques", "Inventaire des risques par unité de travail",
+    ["Unité de travail","Salariés de l'unité","Risque","Situations dangereuses","Salariés exposés","Mesures de prévention existantes","Gravité (1-4)","Fréquence (1-4)","Criticité","Priorité"],
+    inv, [26,10,32,45,10,55,9,10,9,10], {prioCol:10});
+
+  // 3. Plan d'actions
+  const acts = buildActions();
+  sheet("Plan d'actions", n >= 50 ? "Programme annuel de prévention (PAPRIPACT)" : "Liste des actions de prévention et de protection",
+    ["N°","Unité de travail","Risque","Priorité","Action","Origine","Responsable","Échéance","Coût estimé","Réalisée le"],
+    acts.map((a,i) => [i+1, a.unite, a.risque, a.prio, a.action, a.origine, a.resp, a.ech, "", ""]),
+    [6,24,30,9,55,22,18,12,12,12], {prioCol:4});
+
+  // 4. Annexe expositions
+  const expo = RISKS.map(r => {
+    let tot = 0, unites = [];
+    state.unites.forEach(u => { const ev = (u.risques||{})[r.id]||{}; if (ev.concerne === "Oui"){ tot += (+ev.exposes || +u.nb_salaries || 0); unites.push(u.nom); } });
+    return [r.label, unites.join(", "), tot, n ? Math.min(1, tot/n) : ""];
+  }).filter(x => x[1]);
+  const ax = sheet("Annexe – expositions", "Annexe : données collectives utiles à l'évaluation des expositions",
+    ["Risque","Unités de travail concernées","Salariés exposés","Proportion de l'effectif"], expo, [40,50,14,16]);
+  expo.forEach((x,i) => { ax.getRow(5+i).getCell(4).numFmt = "0%"; });
+  ax.getCell(5+expo.length+1, 1).value = `Effectif total déclaré : ${n || "non renseigné"}. Les salariés exposés sont comptés par unité ; un même salarié peut relever de plusieurs unités.`;
+  ax.getCell(5+expo.length+1, 1).font = {italic:true, color:{argb:"FF595959"}};
+
+  // 5. Grille de cotation
+  const gr = wb.addWorksheet("Grille de cotation");
+  gr.getCell("A1").value = "Grille de cotation des risques"; gr.getCell("A1").font = {bold:true, size:14, color:{argb:"FF1F4E79"}};
+  gr.getCell("A2").value = "Criticité = gravité × fréquence d'exposition, compte tenu des mesures de prévention existantes.";
+  gr.getRow(4).values = ["Gravité \\ Fréquence", ...SCHEMA.cotation.frequence.map(f => f.label)];
+  gr.getRow(4).eachCell(c => { c.fill = head; c.font = {bold:true, color:{argb:"FFFFFFFF"}}; c.alignment = {wrapText:true}; c.border = border; });
+  [...SCHEMA.cotation.gravite].reverse().forEach((g,i) => {
+    const row = gr.getRow(5+i); row.getCell(1).value = g.label; row.getCell(1).border = border; row.getCell(1).alignment = {wrapText:true};
+    SCHEMA.cotation.frequence.forEach((f,j) => { const c = row.getCell(2+j); const v = g.v*f.v; c.value = v; c.alignment = {horizontal:"center", vertical:"middle"}; c.fill = fill(fills[prio(v)]); c.border = border; });
+  });
+  SCHEMA.cotation.priorites.forEach((p,i) => { const c = gr.getCell(11+i, 1); c.value = `${p.code} : ${p.label} (criticité ≥ ${p.min})`; c.fill = fill(fills[p.code]); });
+  [34,24,24,24,24].forEach((w,i) => gr.getColumn(i+1).width = w);
+
+  // Données pour ré-import (feuille masquée)
+  const data = wb.addWorksheet("_donnees", {state:"veryHidden"});
+  const json = JSON.stringify({v:1, ...state});
+  for (let i = 0, r = 1; i < json.length; i += 30000, r++) data.getCell(r,1).value = json.slice(i, i+30000);
+  return wb;
+}
+
+async function download(){
+  state.structure = readStruct();
+  const msg = $("#dlMsg");
+  const sMiss = structMissing(state.structure);
+  if (sMiss.length){ msg.innerHTML = `<span class="err">Complétez d'abord « Votre structure » : ${esc(sMiss.join(", "))}.</span>`; return; }
+  if (!state.unites.length){ msg.innerHTML = `<span class="err">Ajoutez au moins une unité de travail.</span>`; return; }
+  const inc = state.unites.filter(u => unitMissing(u).length);
+  if (inc.length && !confirm(`${inc.length} unité(s) de travail incomplète(s) (risques non cotés…). Télécharger quand même ?`)) return;
+  if (typeof ExcelJS === "undefined"){ msg.innerHTML = `<span class="err">La bibliothèque Excel n'a pas pu se charger (connexion internet requise).</span>`; return; }
+  const last = (state.historique||[]).slice(-1)[0];
+  const entry = {date: state.structure.date_maj, motif: state.structure.motif_maj, redacteur: state.structure.redacteur};
+  if (!last || last.date !== entry.date || last.motif !== entry.motif){ state.historique = (state.historique||[]).concat([entry]); save(); }
+  const wb = await buildWorkbook();
+  const buf = await wb.xlsx.writeBuffer();
+  const slug = (state.structure.structure||"structure").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+  a.download = `duerp-${slug}-${new Date().toISOString().slice(0,10)}.xlsx`;
+  document.body.appendChild(a); a.click(); a.remove();
+  msg.textContent = "DUERP téléchargé. Conservez cette version, transmettez-la à votre service de prévention et de santé au travail, et ré-importez-la ici pour la prochaine mise à jour.";
+  pingUsage();
+}
+
+function pingUsage(){
+  // Suivi d'utilisation facultatif : uniquement le nom et le type de la structure (désactivé si USAGE = null).
+  if (!USAGE) return;
+  try{
+    const b = new URLSearchParams({formID: USAGE.formId, simple_spc: USAGE.formId + "-" + USAGE.formId});
+    b.set(USAGE.fields.structure, state.structure.structure || "");
+    b.set(USAGE.fields.type, state.structure.forme_juridique || "");
+    fetch(USAGE.submitUrl, {method:"POST", mode:"no-cors", body:b}).catch(()=>{});
+  }catch(e){}
+}
+
+async function importXlsx(file){
+  const msg = $("#importMsg");
+  try{
+    if (typeof ExcelJS === "undefined") throw new Error("La bibliothèque Excel n'a pas pu se charger (connexion internet requise).");
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load(await file.arrayBuffer());
+    const ws = wb.getWorksheet("_donnees");
+    if (!ws) throw new Error("Ce fichier n'a pas été généré par cet outil.");
+    let json = ""; ws.eachRow(r => { json += r.getCell(1).value || ""; });
+    const d = JSON.parse(json);
+    if (!d.unites) throw new Error("Données illisibles.");
+    if (state.unites.length && !confirm("Remplacer les données en cours par celles du fichier importé ?")) return;
+    state = {structure: d.structure || {}, organisation: d.organisation || [], unites: d.unites, historique: d.historique || []};
+    save(); renderStruct(); renderFiches(); closeEditor(); effNotice();
+    msg.textContent = `✔ ${d.unites.length} unité(s) de travail importée(s). Pensez à mettre à jour la date et le motif de la nouvelle version.`;
+  }catch(e){ msg.innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+}
+
+// ---------- Événements ----------
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.preset !== undefined){
+    const p = SCHEMA.unites[+b.dataset.preset];
+    const u = {nom: p.nom.startsWith("Autre") ? "" : p.nom, description: p.description, nb_salaries:"", risques:{}, _preselect:p.risques};
+    p.risques.forEach(id => u.risques[id] = {concerne:"Oui"});
+    openEditor(-1, u);
+  } else if (b.dataset.act === "edit"){ openEditor(+b.dataset.i, state.unites[+b.dataset.i]); }
+  else if (b.dataset.act === "dup"){ const c = JSON.parse(JSON.stringify(state.unites[+b.dataset.i])); c.nom += " (copie)"; state.unites.push(c); save(); renderFiches(); }
+  else if (b.dataset.act === "del"){ if (confirm("Supprimer cette unité de travail ?")){ state.unites.splice(+b.dataset.i,1); save(); renderFiches(); } }
+  else if (b.id === "btnOpenAll"){ document.querySelectorAll("#riskList details").forEach(d => d.open = true); }
+  else if (b.id === "btnCloseAll"){ document.querySelectorAll("#riskList details").forEach(d => d.open = false); }
+});
+$("#btnSave").addEventListener("click", () => {
+  const u = readEditor();
+  if (!u.nom){ $("#ficheErr").textContent = "Indiquez le nom de l'unité de travail."; return; }
+  const miss = unitMissing(u);
+  if (editing === -1) state.unites.push(u); else state.unites[editing] = u;
+  save(); renderFiches(); closeEditor();
+  $("#dlMsg").textContent = miss.length ? `Unité enregistrée, mais ${miss.length} élément(s) restent à compléter.` : "";
+  $("#fiches").scrollIntoView({behavior:"smooth"});
+});
+$("#btnCancel").addEventListener("click", closeEditor);
+$("#btnDownload").addEventListener("click", download);
+$("#btnImport").addEventListener("click", () => $("#importFile").click());
+$("#importFile").addEventListener("change", e => { if (e.target.files[0]) importXlsx(e.target.files[0]); e.target.value = ""; });
+$("#btnClear").addEventListener("click", () => {
+  if (!confirm("Effacer toutes les données enregistrées dans ce navigateur ? (Pensez à télécharger votre DUERP avant.)")) return;
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  state = {structure:{}, organisation:[], unites:[], historique:[]}; renderStruct(); renderFiches(); closeEditor(); effNotice();
+  $("#dlMsg").textContent = "Données effacées de ce navigateur.";
+});
+
+load(); renderStruct(); renderFiches(); renderPresets(); effNotice();
+</script>
+</body>
+</html>
