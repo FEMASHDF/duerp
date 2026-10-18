@@ -1,0 +1,321 @@
+# ---------------------------------------------------------------------------
+# FEMAS HDF – Document unique d'évaluation des risques professionnels (DUERP)
+# Source UNIQUE des questions : sert à générer docs/index.html
+# (python scripts/generate_page.py) et à compiler le DUERP Excel.
+#
+# Démarche reprise de l'outil d'évaluation des risques de l'Assurance Maladie –
+# Risques professionnels et de l'INRS (OiRA), adaptée aux MSP / CPTS :
+#   1. préparer l'évaluation  2. identifier les risques  3. hiérarchiser
+#   4. proposer des actions de prévention  5. éditer le DUERP
+#
+# Sources :
+#  - ameli.fr Entreprise : « Déclarer et évaluer les risques : le DUERP »
+#  - ameli.fr Entreprise : « Une solution gratuite pour réaliser son DUERP »
+#  - Code du travail : L.4121-1 à L.4121-3-1, L.4122-1, R.4121-1 à R.4121-4
+#  - INRS : démarche d'évaluation des risques professionnels (ED 840)
+#
+# Types de champs : input | textarea | dropdown | checkboxes | date | number
+# Pour les "checkboxes" : gap: true -> une case NON cochée = action au plan
+# ---------------------------------------------------------------------------
+meta:
+  title: "FEMAS HDF – Document unique d'évaluation des risques professionnels"
+  version: 1
+
+# ======================================================== 1. La structure
+structure:
+  - id: structure
+    type: input
+    label: "Structure (nom de la MSP / CPTS, ville)"
+    placeholder: "Ex. : MSP de … – Ville"
+    required: true
+
+  - id: forme_juridique
+    type: dropdown
+    label: "Type de structure employeuse"
+    options:
+      - "Maison de santé pluriprofessionnelle (SISA)"
+      - "Maison de santé pluriprofessionnelle (association)"
+      - "Communauté professionnelle territoriale de santé (CPTS)"
+      - "Cabinet de groupe (SCM / SEL / SCP)"
+      - "Autre (préciser en commentaire)"
+    required: true
+
+  - id: employeur
+    type: input
+    label: "Employeur responsable du DUERP (nom, qualité)"
+    description: "L'employeur reste responsable du document unique, même s'il en délègue la réalisation pratique (R.4121-1 CT)."
+    placeholder: "Ex. : Dr X, gérant(e) de la SISA – ou Mme Y, présidente de l'association"
+    required: true
+
+  - id: effectif
+    type: number
+    label: "Nombre total de salariés"
+    description: "Le DUERP est obligatoire dès le 1er salarié. À partir de 11 salariés : mise à jour au moins annuelle. À partir de 50 : programme annuel de prévention (PAPRIPACT)."
+    required: true
+
+  - id: adresse
+    type: input
+    label: "Adresse du ou des sites"
+    required: false
+
+  - id: spst
+    type: input
+    label: "Service de prévention et de santé au travail (SPST) / médecin du travail"
+    placeholder: "Ex. : Pôle Santé Travail – Dr Z, contact…"
+    required: true
+
+  - id: redacteur
+    type: input
+    label: "Personne ayant conduit l'évaluation (nom, fonction)"
+    required: true
+
+  - id: participants
+    type: textarea
+    label: "Personnes associées à l'évaluation"
+    description: "Il est recommandé d'établir le DUERP avec les salariés (ou leurs représentants / CSE), le médecin du travail ou un organisme ressource."
+    placeholder: "Ex. : secrétaires (2), coordinatrice, membre du CSE, médecin du travail…"
+    required: false
+
+  - id: date_maj
+    type: date
+    label: "Date de l'évaluation / de la mise à jour"
+    required: true
+
+  - id: motif_maj
+    type: dropdown
+    label: "Motif de cette version"
+    options:
+      - "Première rédaction"
+      - "Mise à jour annuelle"
+      - "Aménagement important (locaux, organisation, nouveau poste…)"
+      - "Information nouvelle sur un risque (accident du travail, incident…)"
+      - "Autre"
+    required: true
+
+# ================================== 2. Organisation générale de la prévention
+# Chaque case non cochée devient une action du plan (thème « Organisation »).
+organisation:
+  id: organisation
+  label: "Organisation générale de la prévention"
+  gap: true
+  options:
+    - "La structure adhère à un service de prévention et de santé au travail (SPST)"
+    - "Les salariés ont bénéficié de leur visite d'information et de prévention (VIP)"
+    - "Le DUERP est tenu à la disposition des salariés, du médecin du travail et de l'inspection du travail"
+    - "Les modalités d'accès au DUERP sont affichées"
+    - "Le DUERP est transmis au SPST à chaque mise à jour (L.4121-3-1 CT)"
+    - "Les versions successives du DUERP sont conservées (40 ans)"
+    - "Les salariés (ou le CSE) sont associés à l'évaluation des risques"
+    - "Les nouveaux salariés reçoivent une information sécurité à l'embauche"
+    - "Une trousse de premiers secours est disponible et vérifiée"
+    - "Les consignes de sécurité et numéros d'urgence sont affichés"
+    - "Les accidents du travail et incidents sont analysés et pris en compte dans le DUERP"
+
+# =================================================== 3. Cotation des risques
+cotation:
+  gravite:
+    - {v: 1, label: "1 – Faible : pas d'arrêt de travail, gêne passagère"}
+    - {v: 2, label: "2 – Moyenne : arrêt de travail court"}
+    - {v: 3, label: "3 – Grave : arrêt long, séquelles possibles"}
+    - {v: 4, label: "4 – Très grave : incapacité permanente, décès"}
+  frequence:
+    - {v: 1, label: "1 – Rare : moins d'une fois par mois"}
+    - {v: 2, label: "2 – Occasionnelle : quelques fois par mois"}
+    - {v: 3, label: "3 – Fréquente : chaque semaine"}
+    - {v: 4, label: "4 – Permanente : tous les jours"}
+  # criticité = gravité × fréquence (en tenant compte des mesures existantes)
+  priorites:
+    - {min: 9, code: "P1", label: "Priorité 1 – agir rapidement"}
+    - {min: 4, code: "P2", label: "Priorité 2 – planifier"}
+    - {min: 1, code: "P3", label: "Priorité 3 – surveiller"}
+
+# ============================================ 4. Catalogue des risques (INRS)
+risques:
+  - id: rps
+    label: "Risques psychosociaux (charge de travail, interruptions, tensions)"
+    exemples: "Flux d'appels et de patients, interruptions permanentes, objectifs flous, conflits internes, exposition à la détresse des patients, horaires étendus."
+    mesures:
+      - "Fiches de poste et missions clairement définies"
+      - "Entretiens individuels réguliers (charge de travail, difficultés)"
+      - "Organisation des pauses et des remplacements"
+      - "Réunions d'équipe incluant l'organisation du travail"
+      - "Procédure de gestion des désaccords / conflits"
+      - "Droit à la déconnexion formalisé"
+      - "Possibilité d'orientation vers le médecin du travail / un soutien psychologique"
+
+  - id: violence
+    label: "Agressions et incivilités du public"
+    exemples: "Patients mécontents (attente, refus de RDV, ordonnances), personnes sous l'emprise de substances, menaces téléphoniques, agressions verbales ou physiques."
+    mesures:
+      - "Procédure de gestion des situations de violence connue de tous (kit violences FEMAS HDF)"
+      - "Formation des salariés à la gestion des conflits / de l'agressivité"
+      - "Aménagement de l'accueil (banque d'accueil, issue de dégagement, visibilité)"
+      - "Moyen d'alerte (bouton, téléphone, code d'appel à l'aide)"
+      - "Affichage des règles de vie et de respect mutuel"
+      - "Recensement des incidents, soutien du salarié et dépôt de plainte facilité"
+      - "Pas de salarié seul à l'ouverture / à la fermeture"
+
+  - id: ecran
+    label: "Travail sur écran et postures (troubles musculo-squelettiques)"
+    exemples: "Saisie prolongée, téléphone coincé entre épaule et oreille, écran mal positionné, siège non réglable, gestes répétitifs."
+    mesures:
+      - "Écran réglé à hauteur des yeux, face à l'utilisateur"
+      - "Siège ergonomique réglable"
+      - "Casque téléphonique"
+      - "Pauses régulières / alternance des tâches"
+      - "Éclairage adapté, sans reflet sur l'écran"
+      - "Repose-pieds, support document à disposition si besoin"
+      - "Étude de poste possible avec le SPST"
+
+  - id: chute_pp
+    label: "Chutes de plain-pied (glissades, trébuchements)"
+    exemples: "Sol mouillé (entretien, pluie), câbles au sol, cartons dans les passages, marches non signalées, éclairage insuffisant."
+    mesures:
+      - "Sols antidérapants et en bon état"
+      - "Passages dégagés, rangement régulier"
+      - "Câbles regroupés sous goulottes"
+      - "Éclairage suffisant des circulations et escaliers"
+      - "Signalisation du sol mouillé pendant l'entretien"
+      - "Tapis d'entrée absorbant"
+
+  - id: chute_h
+    label: "Chutes de hauteur (escaliers, escabeaux)"
+    exemples: "Accès aux archives en hauteur, montée sur une chaise, escaliers sans rampe."
+    mesures:
+      - "Escabeau stable et conforme à disposition"
+      - "Interdiction de monter sur une chaise ou un meuble"
+      - "Rampe ou main courante dans les escaliers"
+      - "Objets lourds et archives courantes rangés à hauteur accessible"
+
+  - id: manutention
+    label: "Manutention manuelle et port de charges"
+    exemples: "Cartons de fournitures, ramettes, archives, matériel médical ; aide à la mobilisation de patients."
+    mesures:
+      - "Chariot / diable à disposition"
+      - "Livraisons déposées au plus près du lieu de stockage"
+      - "Stockage des charges lourdes à hauteur de taille"
+      - "Formation gestes et postures / PRAP"
+      - "Aides techniques pour la mobilisation des patients (si soins)"
+
+  - id: biologique
+    label: "Risque biologique (infections, accident d'exposition au sang)"
+    exemples: "Contact avec des patients contagieux en salle d'attente ou en soins, piqûres, manipulation de prélèvements ou de DASRI, épidémies saisonnières."
+    mesures:
+      - "Vaccinations à jour selon le poste (hépatite B obligatoire pour les soignants exposés)"
+      - "Conduite à tenir en cas d'AES affichée et connue"
+      - "Collecteurs DASRI adaptés et filière d'élimination"
+      - "Équipements de protection disponibles (gants, masques)"
+      - "Solution hydroalcoolique et hygiène des mains"
+      - "Aération régulière des locaux / salle d'attente"
+      - "Protocole de nettoyage et désinfection des surfaces"
+
+  - id: chimique
+    label: "Produits chimiques (entretien, désinfection)"
+    exemples: "Détergents, désinfectants, produits de stérilisation, mélanges de produits, projections."
+    mesures:
+      - "Fiches de données de sécurité (FDS) disponibles"
+      - "Produits dans leur emballage d'origine, étiquetés"
+      - "Gants et lunettes de protection à disposition"
+      - "Stockage dans un local ventilé et fermé"
+      - "Substitution par des produits moins dangereux"
+      - "Consigne : ne jamais mélanger les produits"
+
+  - id: routier
+    label: "Risque routier (déplacements professionnels, visites à domicile)"
+    exemples: "Visites à domicile, réunions extérieures, trajets entre sites, conduite par mauvais temps, usage du téléphone au volant."
+    mesures:
+      - "Véhicules entretenus (si véhicule de la structure)"
+      - "Planification des déplacements évitant l'urgence"
+      - "Interdiction de téléphoner en conduisant"
+      - "Recours à la visio quand c'est possible"
+      - "Consignes en cas d'intempéries"
+
+  - id: electrique
+    label: "Risque électrique"
+    exemples: "Multiprises en cascade, câbles abîmés, matériel défectueux, intervention non qualifiée."
+    mesures:
+      - "Installation électrique vérifiée par un professionnel"
+      - "Pas de multiprises branchées en cascade"
+      - "Signalement et retrait du matériel défectueux"
+      - "Interventions réservées à une personne qualifiée"
+
+  - id: incendie
+    label: "Incendie et évacuation"
+    exemples: "Départ de feu (appareils électriques, stockage papier), évacuation du public et des salariés."
+    mesures:
+      - "Extincteurs adaptés et vérifiés chaque année"
+      - "Plan d'évacuation et consignes affichés"
+      - "Issues de secours dégagées et signalées"
+      - "Salariés formés à la manipulation des extincteurs"
+      - "Exercice d'évacuation réalisé"
+      - "Détection incendie / alarme"
+
+  - id: thermique
+    label: "Ambiances thermiques (chaleur, froid)"
+    exemples: "Fortes chaleurs dans les bureaux ou la salle d'attente, locaux mal chauffés, épisodes de canicule. Risque à inventorier obligatoirement (R.4121-1 CT)."
+    mesures:
+      - "Ventilation / climatisation adaptée"
+      - "Stores ou protections solaires"
+      - "Eau fraîche à disposition"
+      - "Plan canicule (horaires aménagés, pauses supplémentaires)"
+      - "Chauffage suffisant en hiver"
+
+  - id: ambiance
+    label: "Bruit, éclairage et aménagement des locaux"
+    exemples: "Accueil ouvert sur la salle d'attente, sonneries permanentes, open space, manque de lumière naturelle, espace de travail exigu."
+    mesures:
+      - "Séparation de l'accueil et de la salle d'attente"
+      - "Réglage du volume des sonneries / téléphonie adaptée"
+      - "Lumière naturelle et éclairage d'appoint"
+      - "Espace de travail suffisant et rangé"
+      - "Local de pause distinct"
+
+  - id: isole
+    label: "Travail isolé"
+    exemples: "Salarié seul en début ou fin de journée, seul sur un site secondaire, en visite à domicile."
+    mesures:
+      - "Procédure d'alerte en cas de problème"
+      - "Téléphone ou dispositif d'alerte à disposition"
+      - "Horaires évitant le travail seul quand c'est possible"
+      - "Information d'un tiers sur la présence et les horaires"
+
+  - id: teletravail
+    label: "Télétravail (isolement, hyperconnexion, ergonomie au domicile)"
+    exemples: "Perte de lien avec l'équipe, difficulté à déconnecter, poste de travail improvisé au domicile."
+    mesures:
+      - "Charte ou accord de télétravail"
+      - "Équipement fourni (ordinateur, écran, casque)"
+      - "Plages de joignabilité et droit à la déconnexion définis"
+      - "Temps collectifs réguliers sur site"
+      - "Conseils d'aménagement du poste au domicile"
+
+  - id: autre
+    label: "Autre risque (à préciser)"
+    exemples: "Tout autre risque identifié dans l'unité de travail (rayonnements, coupures, animaux lors des visites…)."
+    mesures: []
+
+# ======================================== 5. Unités de travail (modèles MSP)
+# Une unité de travail = un poste, un métier ou un lieu regroupant des
+# salariés exposés aux mêmes risques.
+unites:
+  - nom: "Accueil / secrétariat"
+    description: "Accueil physique et téléphonique des patients, gestion des rendez-vous, encaissements, tâches administratives."
+    risques: [rps, violence, ecran, chute_pp, chute_h, biologique, incendie, thermique, ambiance, isole, electrique]
+  - nom: "Coordination / gestion administrative"
+    description: "Coordination de l'équipe pluriprofessionnelle, gestion administrative et financière, réunions, projets de santé publique."
+    risques: [rps, ecran, routier, chute_pp, incendie, thermique, teletravail, electrique]
+  - nom: "Soins et assistance médicale (salariés)"
+    description: "Infirmier(e) salarié(e), assistant(e) médical(e), IPA salarié(e) : soins, préparation des consultations, prélèvements."
+    risques: [biologique, chimique, manutention, rps, violence, chute_pp, routier, isole, thermique]
+  - nom: "Entretien des locaux"
+    description: "Nettoyage et désinfection des locaux et des surfaces, gestion des déchets."
+    risques: [chimique, biologique, chute_pp, chute_h, manutention, isole, electrique]
+  - nom: "Télétravail"
+    description: "Activités réalisées au domicile du salarié."
+    risques: [teletravail, ecran, rps, electrique]
+  - nom: "Déplacements / visites à domicile"
+    description: "Trajets professionnels, réunions extérieures, interventions au domicile des patients."
+    risques: [routier, violence, isole, biologique, thermique]
+  - nom: "Autre unité de travail"
+    description: ""
+    risques: []
